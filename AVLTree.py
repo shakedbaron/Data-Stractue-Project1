@@ -111,7 +111,43 @@ class AVLTree(object):
 	def delete(self, node):
 		return	
 
-	
+
+	def balance_tree(self, initial_node):
+		node = initial_node
+		while node.key != self.root.key:
+			bf = node.left.height - node.right.height
+			if bf == 2:
+				son = node.left
+				bf_son = son.left.height - son.right.height
+				if bf_son == 1 or bf_son == 0:
+					node.left = son.right
+					node.left.parent = node
+					son.right = node
+					son.parent = node.parent
+					if son.parent.right.key == node.key:
+						son.parent.right = son
+					else:
+						son.parent.left = son
+					node.parent = son
+				if bf_son == -1:
+					...
+			if bf == -2:
+				son = node.right
+				bf_son = son.left.height - son.right.height
+				if bf_son == 1:
+					...
+				if bf_son == -1 or bf_son == 0:
+					...
+			node = node.parent
+
+			
+			
+			if bf_son == 1:
+		
+		
+		return
+
+
 	"""joins self with item and another AVLTree
 
 	@type tree2: AVLTree 
@@ -124,6 +160,35 @@ class AVLTree(object):
 	or the opposite way
 	"""
 	def join(self, tree2, key, val):
+		middle_node = AVLNode(key, val)
+		middle_node.is_real_node = True
+		self_height = self.root.height
+		tree2_height = tree2.root.height
+		if tree2.root.key < middle_node.key < self.root < key:
+			if tree2_height < self_height:
+				middle_node.left = tree2.root
+				tree2.root.parent = middle_node
+				connecting_node = self.root
+				while connecting_node.height > tree2_height:
+					connecting_node = connecting_node.left
+				middle_node.parent = connecting_node.parent
+				connecting_node.parent.left = middle_node
+				middle_node.right = connecting_node
+				connecting_node.parent = middle_node
+				#rebalancing
+
+				
+				
+				
+			
+
+
+		if tree2.root.key < key < self.root.key:
+			...
+		else:
+			...
+
+
 		return
 
 
