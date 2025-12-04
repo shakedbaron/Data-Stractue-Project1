@@ -251,7 +251,12 @@ class AVLTree(object):
 	@returns: the maximal node, None if the dictionary is empty
 	"""
 	def max_node(self):
-		return None
+		tmp_node = self.root
+		if tmp_node == None:
+			return None
+		while tmp_node.right != None:
+			tmp_node = tmp_node.right
+		return tmp_node
 
 	"""returns the number of items in dictionary 
 
