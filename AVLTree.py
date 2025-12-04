@@ -159,31 +159,52 @@ class AVLTree(object):
 		middle_node.is_real_node = True
 		self_height = self.root.height
 		tree2_height = tree2.root.height
-		if tree2.root.key < middle_node.key < self.root < key:
-			if tree2_height < self_height:
+		if tree2.root.key < middle_node.key < self.root.key:
+			if tree2_height <= self_height:
 				middle_node.left = tree2.root
 				tree2.root.parent = middle_node
 				connecting_node = self.root
 				while connecting_node.height > tree2_height:
 					connecting_node = connecting_node.left
 				middle_node.parent = connecting_node.parent
-				connecting_node.parent.left = middle_node
+				connecting_node.parent.right = middle_node
 				middle_node.right = connecting_node
 				connecting_node.parent = middle_node
 				self.balance_tree(middle_node)
-
-				
-				
-				
-			
-
-
-		if tree2.root.key < key < self.root.key:
-			...
-		else:
-			...
-
-
+			if self_height < tree2_height:
+				middle_node.right = self.root
+				self.root.parent = middle_node
+				connecting_node = tree2.root
+				while connecting_node.height > self_height:
+					connecting_node = connecting_node.right
+				middle_node.parent = connecting_node.parent
+				connecting_node.parent.left = middle_node
+				middle_node.left = connecting_node
+				connecting_node.parent = middle_node
+				self.balance_tree(middle_node)
+		if self.root.key < middle_node.key < tree2.root.key:
+			if self_height <= tree2_height:
+				middle_node.left = self.root
+				self.root.parent = middle_node
+				connecting_node = tree2.root
+				while connecting_node.height > self_height:
+					connecting_node = connecting_node.left
+				middle_node.parent = connecting_node.parent
+				connecting_node.parent.right = middle_node
+				middle_node.right = connecting_node
+				connecting_node.parent = middle_node
+				self.balance_tree(middle_node)
+			if tree2_height < self_height:
+				middle_node.right = tree2.root
+				tree2.root.parent = middle_node
+				connecting_node = self.root
+				while connecting_node.height > tree2_height:
+					connecting_node = connecting_node.right
+				middle_node.parent = connecting_node.parent
+				connecting_node.parent.left = middle_node
+				middle_node.left = connecting_node
+				connecting_node.parent = middle_node
+				self.balance_tree(middle_node)
 		return
 
 
