@@ -138,12 +138,7 @@ class AVLTree(object):
 					...
 				if bf_son == -1 or bf_son == 0:
 					...
-			node = node.parent
-
-			
-			
-			if bf_son == 1:
-		
+			node = node.parent		
 		
 		return
 
@@ -175,7 +170,7 @@ class AVLTree(object):
 				connecting_node.parent.left = middle_node
 				middle_node.right = connecting_node
 				connecting_node.parent = middle_node
-				#rebalancing
+				self.balance_tree(middle_node)
 
 				
 				
