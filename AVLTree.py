@@ -114,7 +114,7 @@ class AVLTree(object):
 
 	def balance_tree(self, initial_node):
 		node = initial_node
-		while node.key != self.root.key:
+		while node.parent != None:
 			bf = node.left.height - node.right.height
 			if bf == 2:
 				son = node.left
@@ -219,7 +219,21 @@ class AVLTree(object):
 	dictionary larger than node.key.
 	"""
 	def split(self, node):
-		return None, None
+		small_tree = AVLTree()
+		small_tree.root = node.left
+		big_tree = AVLTree()
+		big_tree.root = node.right
+		tmp_node = node
+		while tmp_node.parent != None:
+			new_tree = AVLTree()
+			parent = tmp_node.parent
+			if parent.right.key == tmp_node.key:
+				new_tree.root = parent.left
+				small_tree.join(new_tree, parent.key, parent.value)
+			else:
+				new_tree.root = parent.right
+				big_tree.join(new_tree, parent.key, parent.value)
+		return small_tree, big_tree
 
 	
 	"""returns an array representing dictionary 
