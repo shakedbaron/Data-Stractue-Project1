@@ -45,6 +45,7 @@ class AVLTree(object):
 	"""
 	def __init__(self):
 		self.root = None
+		self.size = 0 #every insert and finger insert, increase size by 1
 
 
 	"""searches for a node in the dictionary corresponding to the key (starting at the root)
@@ -115,6 +116,7 @@ class AVLTree(object):
 	def balance_tree(self, initial_node):
 		node = initial_node
 		while node.parent != None:
+			parent = node.parent
 			bf = node.left.height - node.right.height
 			if bf == 2:
 				son = node.left
@@ -138,7 +140,7 @@ class AVLTree(object):
 					...
 				if bf_son == -1 or bf_son == 0:
 					...
-			node = node.parent		
+			node = parent		
 		
 		return
 
@@ -272,7 +274,7 @@ class AVLTree(object):
 	@returns: the number of items in dictionary 
 	"""
 	def size(self):
-		return -1	
+		return self.size	
 
 
 	"""returns the root of the tree representing the dictionary
