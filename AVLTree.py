@@ -45,7 +45,7 @@ class AVLTree(object):
 	"""
 	def __init__(self):
 		self.root = None
-		self.size = 0 #every insert and finger insert, increase size by 1
+		self.size = 0 #every insert and finger insert, increase size by 1, and every delete decrease by 1
 
 
 	"""searches for a node in the dictionary corresponding to the key (starting at the root)
