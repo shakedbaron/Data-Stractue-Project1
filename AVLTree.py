@@ -242,7 +242,15 @@ class AVLTree(object):
 	@returns: a sorted list according to key of touples (key, value) representing the data structure
 	"""
 	def avl_to_array(self):
-		return None
+		array = []
+		def in_order(node):
+			if node is None:
+				return
+			in_order(node.left)
+			array.append((node.key, node.value))
+			in_order(node.right)
+		in_order(self.root)
+		return array
 
 
 	"""returns the node with the maximal key in the dictionary
