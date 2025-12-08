@@ -1,9 +1,10 @@
-#id1:211381207
-#name1:Shaked Baron
-#username1:shakedbaron
-#id2:
-#name2:
-#username2:
+#id1:325047686
+#name1:Yair Tilayov
+#username1:tilayov
+#id2:211381207
+#name2:Shaked Baron
+#username2:shakedbaron
+
 
 
 """A class represnting a node in an AVL tree"""
@@ -45,6 +46,7 @@ class AVLTree(object):
 	"""
 	def __init__(self):
 		self.root = None
+		self.size = 0 #every insert and finger insert, increase size by 1, and every delete decrease by 1
 
 
 	"""searches for a node in the dictionary corresponding to the key (starting at the root)
@@ -302,6 +304,54 @@ class AVLTree(object):
 			parent=parent.parent
 		return parent
 
+
+			
+	def delete(self, node):
+		fix_from=node.parent
+		if node.left is None and node.right is None:#עלה -ניתוק ישיר
+			p=node.parent
+			if p is not None:
+				if p.left is node:
+					p.left=None
+				else:
+					p.right=None
+			return self.root
+		if node.left is None or node.right is None: #ילד אחד אז מחברים אותו לסבא
+			child=node.left if node.left is not None else node.right
+			p=node.parent
+			if p is not None:
+				if p.left is node:
+					p.left=child
+				else:
+					p.right=child
+			child.parent=p
+			return
+		succ=self.successor(node) # 2 ילדים -מוצאים יורש ומחליפים 
+		node.key , succ.key= succ.key, node.key
+		node.value, succ.value= succ.value, node.value
+		if succ.left is None and succ.right is None:
+			p=succ.parent
+			if p.left is succ:
+				p.left=None
+			else:
+				p.right=None
+		else:
+			child=succ.left if succ.left is not None else succ.right
+			p=succ.parent
+			if p.left is succ:
+				p.left=child
+			else:
+				p.right=child
+			child.parent=p 
+			fix_from=p
+			promotes=0
+			if fix_from is not None:
+				promotes=self.fix_after_delete(fix_from)
+			else:
+				promotes=0
+			return promotes
+	
+
 			
 	def delete(self, node):
 		fix_from=node.parent
@@ -357,7 +407,39 @@ class AVLTree(object):
 		
 	
 
-	
+
+	def balance_tree(self, initial_node):
+		node = initial_node
+		while node.parent != None:
+			parent = node.parent
+			bf = node.left.height - node.right.height
+			if bf == 2:
+				son = node.left
+				bf_son = son.left.height - son.right.height
+				if bf_son == 1 or bf_son == 0:
+					node.left = son.right
+					node.left.parent = node
+					son.right = node
+					son.parent = node.parent
+					if son.parent.right.key == node.key:
+						son.parent.right = son
+					else:
+						son.parent.left = son
+					node.parent = son
+				if bf_son == -1:
+					...
+			if bf == -2:
+				son = node.right
+				bf_son = son.left.height - son.right.height
+				if bf_son == 1:
+					...
+				if bf_son == -1 or bf_son == 0:
+					...
+			node = parent		
+		
+		return
+
+
 	"""joins self with item and another AVLTree
 
 	@type tree2: AVLTree 
@@ -370,6 +452,56 @@ class AVLTree(object):
 	or the opposite way
 	"""
 	def join(self, tree2, key, val):
+		middle_node = AVLNode(key, val)
+		middle_node.is_real_node = True
+		self_height = self.root.height
+		tree2_height = tree2.root.height
+		if tree2.root.key < middle_node.key < self.root.key:
+			if tree2_height <= self_height:
+				middle_node.left = tree2.root
+				tree2.root.parent = middle_node
+				connecting_node = self.root
+				while connecting_node.height > tree2_height:
+					connecting_node = connecting_node.left
+				middle_node.parent = connecting_node.parent
+				connecting_node.parent.right = middle_node
+				middle_node.right = connecting_node
+				connecting_node.parent = middle_node
+				self.balance_tree(middle_node)
+			if self_height < tree2_height:
+				middle_node.right = self.root
+				self.root.parent = middle_node
+				connecting_node = tree2.root
+				while connecting_node.height > self_height:
+					connecting_node = connecting_node.right
+				middle_node.parent = connecting_node.parent
+				connecting_node.parent.left = middle_node
+				middle_node.left = connecting_node
+				connecting_node.parent = middle_node
+				self.balance_tree(middle_node)
+		if self.root.key < middle_node.key < tree2.root.key:
+			if self_height <= tree2_height:
+				middle_node.left = self.root
+				self.root.parent = middle_node
+				connecting_node = tree2.root
+				while connecting_node.height > self_height:
+					connecting_node = connecting_node.left
+				middle_node.parent = connecting_node.parent
+				connecting_node.parent.right = middle_node
+				middle_node.right = connecting_node
+				connecting_node.parent = middle_node
+				self.balance_tree(middle_node)
+			if tree2_height < self_height:
+				middle_node.right = tree2.root
+				tree2.root.parent = middle_node
+				connecting_node = self.root
+				while connecting_node.height > tree2_height:
+					connecting_node = connecting_node.right
+				middle_node.parent = connecting_node.parent
+				connecting_node.parent.left = middle_node
+				middle_node.left = connecting_node
+				connecting_node.parent = middle_node
+				self.balance_tree(middle_node)
 		return
 
 
@@ -384,7 +516,21 @@ class AVLTree(object):
 	dictionary larger than node.key.
 	"""
 	def split(self, node):
-		return None, None
+		small_tree = AVLTree()
+		small_tree.root = node.left
+		big_tree = AVLTree()
+		big_tree.root = node.right
+		tmp_node = node
+		while tmp_node.parent != None:
+			new_tree = AVLTree()
+			parent = tmp_node.parent
+			if parent.right.key == tmp_node.key:
+				new_tree.root = parent.left
+				small_tree.join(new_tree, parent.key, parent.value)
+			else:
+				new_tree.root = parent.right
+				big_tree.join(new_tree, parent.key, parent.value)
+		return small_tree, big_tree
 
 	
 	"""returns an array representing dictionary 
@@ -393,7 +539,15 @@ class AVLTree(object):
 	@returns: a sorted list according to key of touples (key, value) representing the data structure
 	"""
 	def avl_to_array(self):
-		return None
+		array = []
+		def in_order(node):
+			if node is None:
+				return
+			in_order(node.left)
+			array.append((node.key, node.value))
+			in_order(node.right)
+		in_order(self.root)
+		return array
 
 
 	"""returns the node with the maximal key in the dictionary
@@ -402,7 +556,12 @@ class AVLTree(object):
 	@returns: the maximal node, None if the dictionary is empty
 	"""
 	def max_node(self):
-		return None
+		tmp_node = self.root
+		if tmp_node == None:
+			return None
+		while tmp_node.right != None:
+			tmp_node = tmp_node.right
+		return tmp_node
 
 	"""returns the number of items in dictionary 
 
@@ -410,7 +569,7 @@ class AVLTree(object):
 	@returns: the number of items in dictionary 
 	"""
 	def size(self):
-		return -1	
+		return self.size	
 
 
 	"""returns the root of the tree representing the dictionary
@@ -419,4 +578,4 @@ class AVLTree(object):
 	@returns: the root, None if the dictionary is empty
 	"""
 	def get_root(self):
-		return None
+		return self.root
