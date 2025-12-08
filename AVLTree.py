@@ -6,6 +6,7 @@
 #username2:shakedbaron
 
 
+
 """A class represnting a node in an AVL tree"""
 
 class AVLNode(object):
@@ -302,6 +303,54 @@ class AVLTree(object):
 			current=parent
 			parent=parent.parent
 		return parent
+
+
+			
+	def delete(self, node):
+		fix_from=node.parent
+		if node.left is None and node.right is None:#עלה -ניתוק ישיר
+			p=node.parent
+			if p is not None:
+				if p.left is node:
+					p.left=None
+				else:
+					p.right=None
+			return self.root
+		if node.left is None or node.right is None: #ילד אחד אז מחברים אותו לסבא
+			child=node.left if node.left is not None else node.right
+			p=node.parent
+			if p is not None:
+				if p.left is node:
+					p.left=child
+				else:
+					p.right=child
+			child.parent=p
+			return
+		succ=self.successor(node) # 2 ילדים -מוצאים יורש ומחליפים 
+		node.key , succ.key= succ.key, node.key
+		node.value, succ.value= succ.value, node.value
+		if succ.left is None and succ.right is None:
+			p=succ.parent
+			if p.left is succ:
+				p.left=None
+			else:
+				p.right=None
+		else:
+			child=succ.left if succ.left is not None else succ.right
+			p=succ.parent
+			if p.left is succ:
+				p.left=child
+			else:
+				p.right=child
+			child.parent=p 
+			fix_from=p
+			promotes=0
+			if fix_from is not None:
+				promotes=self.fix_after_delete(fix_from)
+			else:
+				promotes=0
+			return promotes
+	
 
 			
 	def delete(self, node):
