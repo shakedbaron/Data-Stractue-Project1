@@ -124,10 +124,13 @@ class AVLTree(object):
 	#we add functions to support the prompting#
 	def height(self, node):
 		return node.height if node is not None else -1
+	
 	def update_height(self, node):
 		node_height=1+max(self.height(node.left),self.height(node.right))
+
 	def balance_factor(self, node):
 		return self.height(node.left)-self.height(node.right)
+	
 	def rotate_left(self,z):
 		y=z.right
 		T2=y.left
@@ -166,50 +169,36 @@ class AVLTree(object):
 		self.update_height(y)
 
 
-	def fix_after_insert(self,node):
+	def balance_tree(self, node, is_insert=False):
 		promotes=0
 		current=node
 		while current is not None:
 			old_h=current.height 
 			self.update_height(current)
+			if current.height == old_h and -1<=bf<=1:
+				break
 			if current.height>old_h:
 				promotes+=1
 			bf=self.balance_factor(current)
 			if bf>1:
-				if self.balance_factor(current.left)<0:
+				if self.balance_factor(current.left)<=0:
 					self.rotate_left(current.left)
 				self.rotate_right(current)
-				break
-			if bf<-1:
-				if self.balance_factor(current.right)>0:
-					self.rotate_right(current.right)
-				self.rotate_left(current)
-				break
-			current=current.parent
-		return promotes
-	def fix_after_delete(self,node):
-		promotes=0
-		current=node
-		while current is not None:
-			old_h=current.height 
-			self.update_height(current)
-			if current.height>old_h:
-				promotes+=1
-			bf=self.balance_factor(current)
-			if bf>1:
-				if self.balance_factor(current.left)<0:
-					self.rotate_left(current.left)
-				self.rotate_right(current)
+				if is_insert:
+					break
 	
 			elif bf<-1:
-				if self.balance_factor(current.right)>0:
+				if self.balance_factor(current.right)>=0:
 					self.rotate_right(current.right)
 				self.rotate_left(current)
+				if is_insert:
+					break
 				
 			if current.height == old_h and -1<=bf<=1:
 				break
 			current=current.parent
 		return promotes
+
 
 	def insert(self, key, val):
 		node=self 
@@ -228,7 +217,7 @@ class AVLTree(object):
 			parent.left=new_node
 		else:
 			parent.right=new_node
-		promotes=self.fix_after_insert(new_node)
+		promotes=self.balance_tree(new_node, is_insert=True)
 		return new_node,steps,promotes
 
 
@@ -256,7 +245,7 @@ class AVLTree(object):
 			node_max.right=new_node
 			new_node.parent=node_max
 			steps+=1
-			promotes=self.fix_after_insert(node_max)
+			promotes=self.balance_tree(node_max, is_insert=True)
 			return new_node, steps,promotes
 		current=node_max
 		while current.parent is not None and current.parent.key>key:
@@ -280,7 +269,7 @@ class AVLTree(object):
 					break
 				parent=parent.right 
 				steps+=1
-		promotes=self.fix_after_insert(parent)
+		promotes=self.balance_tree(parent, is_insert=True)
 		return new_node, steps, promotes
 	
 		
@@ -347,51 +336,10 @@ class AVLTree(object):
 			fix_from=p
 			promotes=0
 			if fix_from is not None:
-				promotes=self.fix_after_delete(fix_from)
+				promotes=self.balance_tree(fix_from)
 			else:
 				promotes=0
 			return promotes
-	
-
-		
-		
-		
-		
-
-		
-	
-
-
-	def balance_tree(self, initial_node):
-		node = initial_node
-		while node.parent != None:
-			parent = node.parent
-			bf = node.left.height - node.right.height
-			if bf == 2:
-				son = node.left
-				bf_son = son.left.height - son.right.height
-				if bf_son == 1 or bf_son == 0:
-					node.left = son.right
-					node.left.parent = node
-					son.right = node
-					son.parent = node.parent
-					if son.parent.right.key == node.key:
-						son.parent.right = son
-					else:
-						son.parent.left = son
-					node.parent = son
-				if bf_son == -1:
-					...
-			if bf == -2:
-				son = node.right
-				bf_son = son.left.height - son.right.height
-				if bf_son == 1:
-					...
-				if bf_son == -1 or bf_son == 0:
-					...
-			node = parent		
-		
-		return
 
 
 	"""joins self with item and another AVLTree
@@ -421,7 +369,7 @@ class AVLTree(object):
 				connecting_node.parent.right = middle_node
 				middle_node.right = connecting_node
 				connecting_node.parent = middle_node
-				self.balance_tree(middle_node)
+				p = self.balance_tree(middle_node)
 			if self_height < tree2_height:
 				middle_node.right = self.root
 				self.root.parent = middle_node
@@ -432,7 +380,7 @@ class AVLTree(object):
 				connecting_node.parent.left = middle_node
 				middle_node.left = connecting_node
 				connecting_node.parent = middle_node
-				self.balance_tree(middle_node)
+				p = self.balance_tree(middle_node)
 		if self.root.key < middle_node.key < tree2.root.key:
 			if self_height <= tree2_height:
 				middle_node.left = self.root
@@ -444,7 +392,7 @@ class AVLTree(object):
 				connecting_node.parent.right = middle_node
 				middle_node.right = connecting_node
 				connecting_node.parent = middle_node
-				self.balance_tree(middle_node)
+				p = self.balance_tree(middle_node)
 			if tree2_height < self_height:
 				middle_node.right = tree2.root
 				tree2.root.parent = middle_node
@@ -455,7 +403,7 @@ class AVLTree(object):
 				connecting_node.parent.left = middle_node
 				middle_node.left = connecting_node
 				connecting_node.parent = middle_node
-				self.balance_tree(middle_node)
+				p = self.balance_tree(middle_node)
 		return
 
 
