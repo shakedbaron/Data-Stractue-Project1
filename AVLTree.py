@@ -1,6 +1,6 @@
-#id1:
-#name1:
-#username1:
+#id1:211381207
+#name1:Shaked Baron
+#username1:shakedbaron
 #id2:
 #name2:
 #username2:
@@ -56,7 +56,19 @@ class AVLTree(object):
 	and e is the number of edges on the path between the starting node and ending node+1.
 	"""
 	def search(self, key):
-		return None, -1
+		node=self
+		steps=0
+		while node is not None:
+			steps+=1
+				
+			if key==node.key:
+				return node, steps+1
+			elif key<node.key:
+				node=node.left
+			else:
+				node=node.right
+
+		return None,-1
 
 
 	"""searches for a node in the dictionary corresponding to the key, starting at the max
@@ -68,6 +80,30 @@ class AVLTree(object):
 	and e is the number of edges on the path between the starting node and ending node+1.
 	"""
 	def finger_search(self, key):
+		node=self
+		steps=0
+		while node.right is not None:
+			node=node.right
+			steps+=1
+		max_node=node
+		if key>max_node.key:
+			return None , -1
+		if key==max_node.key:
+			return max_node, steps+1
+		u=max_node
+		while u.parent is not None and u.parent.key>=key:
+			u=u.parent
+			steps+=1
+		current=u
+		while current is not None:
+			steps+=1
+
+			if key==current.key:
+				return current, steps
+			if key< current.key:
+				current=current.left 
+			else:
+				current=current.right
 		return None, -1
 
 
@@ -83,8 +119,116 @@ class AVLTree(object):
 	e is the number of edges on the path between the starting node and new node before rebalancing,
 	and h is the number of PROMOTE cases during the AVL rebalancing
 	"""
+	#we add functions to support the prompting#
+	def height(self, node):
+		return node.height if node is not None else -1
+	def update_height(self, node):
+		node_height=1+max(self.height(node.left),self.height(node.right))
+	def balance_factor(self, node):
+		return self.height(node.left)-self.height(node.right)
+	def rotate_left(self,z):
+		y=z.right
+		T2=y.left
+		y.left=z
+		z.right=T2
+		y.parent=z.parent
+		z.parent=y
+		if T2 is not None:
+			T2.parent=z
+		if y.parent is None:
+			self.root=y
+		else:
+			if y.parentleft == z:
+				y.parent.left=y
+			else:
+				y.parent.right=y
+		self.update_height(z)
+		self.update_height(y)
+	def rotate_right(self,z):
+		y=z.left
+		T3=y.right
+		y.right=z
+		z.left=T3
+		y.parent=z.parent
+		z.parent=y
+		if T3 is not None:
+			T3.parent=z
+		if y.parent is None:
+			self.root=y
+		else:
+			if y.parent.left == z:
+				y.parent.left=y
+			else:
+				y.parent.right=y
+		self.update_height(z)
+		self.update_height(y)
+
+
+	def fix_after_insert(self,node):
+		promotes=0
+		current=node
+		while current is not None:
+			old_h=current.height 
+			self.update_height(current)
+			if current.height>old_h:
+				promotes+=1
+			bf=self.balance_factor(current)
+			if bf>1:
+				if self.balance_factor(current.left)<0:
+					self.rotate_left(current.left)
+				self.rotate_right(current)
+				break
+			if bf<-1:
+				if self.balance_factor(current.right)>0:
+					self.rotate_right(current.right)
+				self.rotate_left(current)
+				break
+			current=current.parent
+		return promotes
+	def fix_after_delete(self,node):
+		promotes=0
+		current=node
+		while current is not None:
+			old_h=current.height 
+			self.update_height(current)
+			if current.height>old_h:
+				promotes+=1
+			bf=self.balance_factor(current)
+			if bf>1:
+				if self.balance_factor(current.left)<0:
+					self.rotate_left(current.left)
+				self.rotate_right(current)
+	
+			elif bf<-1:
+				if self.balance_factor(current.right)>0:
+					self.rotate_right(current.right)
+				self.rotate_left(current)
+				
+			if current.height == old_h and -1<=bf<=1:
+				break
+			current=current.parent
+		return promotes
+
 	def insert(self, key, val):
-		return None, -1, -1
+		node=self 
+		steps=0
+		new_node=AVLNode(key,val)
+		parent=None
+		while node is not None:
+				parent=node 
+				steps+=1 
+				if node.key>key:
+					node=node.left 
+				elif node.key<key:
+					node=node.right 
+		new_node.parent=parent
+		if key<parent.key:
+			parent.left=new_node
+		else:
+			parent.right=new_node
+		promotes=self.fix_after_insert(new_node)
+		return new_node,steps,promotes
+
 
 
 	"""inserts a new node into the dictionary with corresponding key and value, starting at the max
@@ -100,7 +244,44 @@ class AVLTree(object):
 	and h is the number of PROMOTE cases during the AVL rebalancing
 	"""
 	def finger_insert(self, key, val):
-		return None, -1, -1
+		steps = 0
+		node_max=self
+		while node_max.right is not None:
+			node_max=node_max.right 
+			steps+=1
+		new_node=AVLNode(key,val)
+		if key>node_max.key:
+			node_max.right=new_node
+			new_node.parent=node_max
+			steps+=1
+			promotes=self.fix_after_insert(node_max)
+			return new_node, steps,promotes
+		current=node_max
+		while current.parent is not None and current.parent.key>key:
+			current=current.parent
+			steps+=1
+		parent=current
+		while True:
+			if key<parent.key:
+				if parent.left is None:
+					parent.left=new_node
+					new_node.parent=parent
+					steps+=1
+					break
+				parent=parent.left 
+				steps+=1
+			else:
+				if parent.right is None:
+					parent.right=new_node
+					new_node.parent=parent
+					steps+=1
+					break
+				parent=parent.right 
+				steps+=1
+		promotes=self.fix_after_insert(parent)
+		return new_node, steps, promotes
+	
+		
 
 
 	"""deletes node from the dictionary
@@ -108,8 +289,73 @@ class AVLTree(object):
 	@type node: AVLNode
 	@pre: node is a real pointer to a node in self
 	"""
+	def successor(self,node): 
+		if node.right is not None:
+			current=node.right
+			while current.left is not None:
+				current=current.left
+			return current
+		current=node
+		parent=current.parent
+		while parent is not None and current==parent.right:
+			current=parent
+			parent=parent.parent
+		return parent
+
+			
 	def delete(self, node):
-		return	
+		fix_from=node.parent
+		if node.left is None and node.right is None:#עלה -ניתוק ישיר
+			p=node.parent
+			if p is not None:
+				if p.left is node:
+					p.left=None
+				else:
+					p.right=None
+			return self.root
+		if node.left is None or node.right is None: #ילד אחד אז מחברים אותו לסבא
+			child=node.left if node.left is not None else node.right
+			p=node.parent
+			if p is not None:
+				if p.left is node:
+					p.left=child
+				else:
+					p.right=child
+			child.parent=p
+			return
+		succ=self.successor(node) # 2 ילדים -מוצאים יורש ומחליפים 
+		node.key , succ.key= succ.key, node.key
+		node.value, succ.value= succ.value, node.value
+		if succ.left is None and succ.right is None:
+			p=succ.parent
+			if p.left is succ:
+				p.left=None
+			else:
+				p.right=None
+		else:
+			child=succ.left if succ.left is not None else succ.right
+			p=succ.parent
+			if p.left is succ:
+				p.left=child
+			else:
+				p.right=child
+			child.parent=p 
+			fix_from=p
+			promotes=0
+			if fix_from is not None:
+				promotes=self.fix_after_delete(fix_from)
+			else:
+				promotes=0
+			return promotes
+	
+
+		
+		
+		
+		
+
+		
+	
 
 	
 	"""joins self with item and another AVLTree
