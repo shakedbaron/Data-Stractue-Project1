@@ -46,7 +46,7 @@ class AVLTree(object):
 	"""
 	def __init__(self):
 		self.root = None
-		self.size = 0 #every insert and finger insert, increase size by 1, and every delete decrease by 1
+		self.treeSize = 0 #every insert and finger insert, increase size by 1, and every delete decrease by 1
 
 
 	"""searches for a node in the dictionary corresponding to the key (starting at the root)
@@ -58,7 +58,7 @@ class AVLTree(object):
 	and e is the number of edges on the path between the starting node and ending node+1.
 	"""
 	def search(self, key):
-		node=self
+		node=self.root
 		steps=0
 		while node is not None:
 			steps+=1
@@ -82,7 +82,7 @@ class AVLTree(object):
 	and e is the number of edges on the path between the starting node and ending node+1.
 	"""
 	def finger_search(self, key):
-		node=self
+		node=self.root
 		steps=0
 		while node.right is not None:
 			node=node.right
@@ -176,11 +176,11 @@ class AVLTree(object):
 		while current is not None:
 			old_h=current.height 
 			self.update_height(current)
+			bf=self.balance_factor(current)
 			if current.height == old_h and -1<=bf<=1:
 				break
 			if current.height>old_h:
 				promotes+=1
-			bf=self.balance_factor(current)
 			if bf>1:
 				if self.balance_factor(current.left)<=0:
 					self.rotate_left(current.left)
@@ -200,7 +200,13 @@ class AVLTree(object):
 
 
 	def insert(self, key, val):
-		node=self 
+		self.treeSize+=1
+		new_node=AVLNode(key,val)
+		new_node.is_real_node = True
+		if self.root is None:
+			self.root = new_node
+			return new_node, 0, 0
+		node=self.root 
 		steps=0
 		new_node=AVLNode(key,val)
 		parent=None
@@ -216,7 +222,6 @@ class AVLTree(object):
 			parent.left=new_node
 		else:
 			parent.right=new_node
-		self.size+=1
 		promotes=self.balance_tree(new_node, is_insert=True)
 		return new_node,steps,promotes #O(logn)
 
@@ -235,8 +240,9 @@ class AVLTree(object):
 	and h is the number of PROMOTE cases during the AVL rebalancing
 	"""
 	def finger_insert(self, key, val):
+		self.treeSize+=1
 		steps = 0
-		node_max=self
+		node_max=self.root
 		while node_max.right is not None:
 			node_max=node_max.right 
 			steps+=1
@@ -297,8 +303,8 @@ class AVLTree(object):
 			
 			
 	def delete(self, node):
+		self.treeSize-=1
 		fix_from=node.parent
-		self.size-=1
 		if node.left is None and node.right is None:#עלה -ניתוק ישיר
 			p=node.parent
 			if p is not None:
@@ -473,7 +479,7 @@ class AVLTree(object):
 	@returns: the number of items in dictionary 
 	"""
 	def size(self):
-		return self.size #O(1)
+		return self.treeSize #O(1)
 
 
 	"""returns the root of the tree representing the dictionary
