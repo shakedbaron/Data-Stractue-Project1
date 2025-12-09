@@ -70,7 +70,7 @@ class AVLTree(object):
 			else:
 				node=node.right
 
-		return None,-1
+		return None,-1 #O(logn)
 
 
 	"""searches for a node in the dictionary corresponding to the key, starting at the max
@@ -149,6 +149,7 @@ class AVLTree(object):
 				y.parent.right=y
 		self.update_height(z)
 		self.update_height(y)
+
 	def rotate_right(self,z):
 		y=z.left
 		T3=y.right
@@ -217,8 +218,9 @@ class AVLTree(object):
 			parent.left=new_node
 		else:
 			parent.right=new_node
+		self.size+=1
 		promotes=self.balance_tree(new_node, is_insert=True)
-		return new_node,steps,promotes
+		return new_node,steps,promotes #O(logn)
 
 
 
@@ -298,6 +300,7 @@ class AVLTree(object):
 			
 	def delete(self, node):
 		fix_from=node.parent
+		self.size-=1
 		if node.left is None and node.right is None:#עלה -ניתוק ישיר
 			p=node.parent
 			if p is not None:
@@ -340,6 +343,7 @@ class AVLTree(object):
 			else:
 				promotes=0
 			return promotes
+		#O(logn)
 
 
 	"""joins self with item and another AVLTree
@@ -404,7 +408,7 @@ class AVLTree(object):
 				middle_node.left = connecting_node
 				connecting_node.parent = middle_node
 				p = self.balance_tree(middle_node)
-		return
+		return #O(abs(log(self.height) - tree2.height))
 
 
 	"""splits the dictionary at a given node
@@ -432,7 +436,7 @@ class AVLTree(object):
 			else:
 				new_tree.root = parent.right
 				big_tree.join(new_tree, parent.key, parent.value)
-		return small_tree, big_tree
+		return small_tree, big_tree #O(logn)
 
 	
 	"""returns an array representing dictionary 
@@ -449,7 +453,7 @@ class AVLTree(object):
 			array.append((node.key, node.value))
 			in_order(node.right)
 		in_order(self.root)
-		return array
+		return array #O(n)
 
 
 	"""returns the node with the maximal key in the dictionary
@@ -463,7 +467,7 @@ class AVLTree(object):
 			return None
 		while tmp_node.right != None:
 			tmp_node = tmp_node.right
-		return tmp_node
+		return tmp_node #O(logn)
 
 	"""returns the number of items in dictionary 
 
@@ -471,7 +475,7 @@ class AVLTree(object):
 	@returns: the number of items in dictionary 
 	"""
 	def size(self):
-		return self.size	
+		return self.size #O(1)
 
 
 	"""returns the root of the tree representing the dictionary
@@ -480,4 +484,4 @@ class AVLTree(object):
 	@returns: the root, None if the dictionary is empty
 	"""
 	def get_root(self):
-		return self.root
+		return self.root #O(1)
