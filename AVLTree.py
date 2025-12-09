@@ -195,8 +195,6 @@ class AVLTree(object):
 				if is_insert:
 					break
 				
-			if current.height == old_h and -1<=bf<=1:
-				break
 			current=current.parent
 		return promotes
 
@@ -290,7 +288,7 @@ class AVLTree(object):
 			return current
 		current=node
 		parent=current.parent
-		while parent is not None and current==parent.right:
+		while parent is not None and current.key==parent.right.key:
 			current=parent
 			parent=parent.parent
 		return parent
@@ -304,7 +302,7 @@ class AVLTree(object):
 		if node.left is None and node.right is None:#עלה -ניתוק ישיר
 			p=node.parent
 			if p is not None:
-				if p.left is node:
+				if p.left.key is node.key:
 					p.left=None
 				else:
 					p.right=None
@@ -324,7 +322,7 @@ class AVLTree(object):
 		node.value, succ.value= succ.value, node.value
 		if succ.left is None and succ.right is None:
 			p=succ.parent
-			if p.left is succ:
+			if p.left.key is succ.key:
 				p.left=None
 			else:
 				p.right=None
