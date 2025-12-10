@@ -126,7 +126,7 @@ class AVLTree(object):
 		return node.height if node is not None else -1
 	
 	def update_height(self, node):
-		node_height=1+max(self.height(node.left),self.height(node.right))
+		node.height=1+max(self.height(node.left),self.height(node.right))
 
 	def balance_factor(self, node):
 		return self.height(node.left)-self.height(node.right)
@@ -143,7 +143,7 @@ class AVLTree(object):
 		if y.parent is None:
 			self.root=y
 		else:
-			if y.parentleft == z:
+			if y.parent.left == z:
 				y.parent.left=y
 			else:
 				y.parent.right=y
@@ -208,7 +208,6 @@ class AVLTree(object):
 			return new_node, 0, 0
 		node=self.root 
 		steps=0
-		new_node=AVLNode(key,val)
 		parent=None
 		while node is not None:
 				parent=node 
@@ -388,7 +387,8 @@ class AVLTree(object):
 				connecting_node.parent.left = middle_node
 				middle_node.left = connecting_node
 				connecting_node.parent = middle_node
-				p = self.balance_tree(middle_node)
+				p = tree2.balance_tree(middle_node)
+				self.root = tree2.root
 		if self.root.key < middle_node.key < tree2.root.key:
 			if self_height <= tree2_height:
 				middle_node.left = self.root
@@ -400,7 +400,8 @@ class AVLTree(object):
 				connecting_node.parent.right = middle_node
 				middle_node.right = connecting_node
 				connecting_node.parent = middle_node
-				p = self.balance_tree(middle_node)
+				p = tree2.balance_tree(middle_node)
+				self.root = tree2.root
 			if tree2_height < self_height:
 				middle_node.right = tree2.root
 				tree2.root.parent = middle_node
@@ -412,6 +413,7 @@ class AVLTree(object):
 				middle_node.left = connecting_node
 				connecting_node.parent = middle_node
 				p = self.balance_tree(middle_node)
+		self.treeSize+=tree2.treeSize + 1
 		return #O(abs(log(self.height) - tree2.height))
 
 
