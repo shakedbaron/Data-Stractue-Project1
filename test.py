@@ -16,7 +16,7 @@ tree2.insert(90, "90")
 T.join(tree2, 30, "30")
 
 
-node, e = T.search(15)
+node, e = T.search(10)
 t1, t2 = T.split(node) #there is a problem here
 #print(t1.root.key)
 print(t1.avl_to_array())
@@ -24,3 +24,13 @@ print(t2.avl_to_array())
 #print(t1.root.left.key)
 #print(t1.size())
 #print(t2.root.key)
+
+t1 = AVLTree()
+t1.insert(15, "15")
+
+t2 = AVLTree()
+t2.insert(40, "40")
+t1.join(t2, 30, "30")
+
+#print(t1.root.key)
+#print(t1.root.right.key)
