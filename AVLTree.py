@@ -382,7 +382,7 @@ class AVLTree(object):
 				middle_node.parent = connecting_node.parent
 				if connecting_node.parent:
 					connecting_node.parent.left = middle_node
-				else:
+				if self_height == tree2_height:
 					self.root = middle_node
 				middle_node.right = connecting_node
 				connecting_node.parent = middle_node
@@ -397,7 +397,7 @@ class AVLTree(object):
 				if connecting_node.parent:
 					connecting_node.parent.right = middle_node
 					self.root = tree2.root
-				else:
+				if self_height == tree2_height:
 					self.root = middle_node
 				middle_node.left = connecting_node
 				connecting_node.parent = middle_node
@@ -413,7 +413,7 @@ class AVLTree(object):
 				if connecting_node.parent:
 					connecting_node.parent.left = middle_node
 					self.root = tree2.root
-				else:
+				if self_height == tree2_height:
 					self.root = middle_node
 				middle_node.right = connecting_node
 				connecting_node.parent = middle_node
@@ -427,7 +427,7 @@ class AVLTree(object):
 				middle_node.parent = connecting_node.parent
 				if connecting_node.parent:
 					connecting_node.parent.right = middle_node
-				else:
+				if self_height == tree2_height:
 					self.root = middle_node
 				middle_node.left = connecting_node
 				connecting_node.parent = middle_node
@@ -471,7 +471,11 @@ class AVLTree(object):
 			1==1
 		for t in big_trees:
 			#print(big_tree.root.key)
+			#print(t.avl_to_array())
+			print(t.root.key)
 			big_tree.join(t, t.root.parent.key, t.root.parent.value)
+			break
+			#print(big_tree.root.parent.key)
 			#print(big_tree.root.key)
 			#print("big")
 			#print(t.avl_to_array(), t.root.parent.key)
