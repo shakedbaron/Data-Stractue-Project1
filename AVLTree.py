@@ -361,6 +361,13 @@ class AVLTree(object):
 	or the opposite way
 	"""
 	def join(self, tree2, key, val):
+		if self.root == None:
+			tree2.insert(key, val)
+			self.root = tree2.root
+			return
+		if tree2.root == None:
+			self.insert(key, val)
+			return
 		middle_node = AVLNode(key, val)
 		middle_node.is_real_node = True
 		self_height = self.root.height
@@ -432,16 +439,32 @@ class AVLTree(object):
 		small_tree.root = node.left
 		big_tree = AVLTree()
 		big_tree.root = node.right
+		small_trees = []
+		big_trees = []
 		tmp_node = node
-		while tmp_node.parent != None:
-			new_tree = AVLTree()
+		#print(tmp_node.parent.parent.key)
+		while tmp_node.key != self.root.key:
+			#print(tmp_node.key)
 			parent = tmp_node.parent
+			#grand_parent = parent.parent
+			new_tree = AVLTree()
 			if parent.right.key == tmp_node.key:
 				new_tree.root = parent.left
-				small_tree.join(new_tree, parent.key, parent.value)
+				small_trees.append(new_tree)
 			else:
 				new_tree.root = parent.right
-				big_tree.join(new_tree, parent.key, parent.value)
+				big_trees.append(new_tree)
+			#print(tmp_node.key)
+			tmp_node = parent
+			#print(tmp_node.key)
+		#print(len(big_trees))
+		for t in small_trees:
+			#print("small")
+			small_tree.join(t, t.root.parent.key, t.root.parent.value)
+		for t in big_trees:
+			#print("big")
+			big_tree.join(t, t.root.parent.key, t.root.parent.value)
+			#print(t.root.key)
 		return small_tree, big_tree #O(logn)
 
 	
