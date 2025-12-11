@@ -373,7 +373,7 @@ class AVLTree(object):
 				while connecting_node.height > tree2_height:
 					connecting_node = connecting_node.left
 				middle_node.parent = connecting_node.parent
-				connecting_node.parent.right = middle_node
+				connecting_node.parent.left = middle_node
 				middle_node.right = connecting_node
 				connecting_node.parent = middle_node
 				p = self.balance_tree(middle_node)
@@ -384,7 +384,7 @@ class AVLTree(object):
 				while connecting_node.height > self_height:
 					connecting_node = connecting_node.right
 				middle_node.parent = connecting_node.parent
-				connecting_node.parent.left = middle_node
+				connecting_node.parent.right = middle_node
 				middle_node.left = connecting_node
 				connecting_node.parent = middle_node
 				p = tree2.balance_tree(middle_node)
@@ -397,10 +397,10 @@ class AVLTree(object):
 				while connecting_node.height > self_height:
 					connecting_node = connecting_node.left
 				middle_node.parent = connecting_node.parent
-				connecting_node.parent.right = middle_node
+				connecting_node.parent.left = middle_node
 				middle_node.right = connecting_node
 				connecting_node.parent = middle_node
-				p = tree2.balance_tree(middle_node)
+				p = tree2.balance_tree(connecting_node)
 				self.root = tree2.root
 			if tree2_height < self_height:
 				middle_node.right = tree2.root
@@ -409,7 +409,7 @@ class AVLTree(object):
 				while connecting_node.height > tree2_height:
 					connecting_node = connecting_node.right
 				middle_node.parent = connecting_node.parent
-				connecting_node.parent.left = middle_node
+				connecting_node.parent.right = middle_node
 				middle_node.left = connecting_node
 				connecting_node.parent = middle_node
 				p = self.balance_tree(middle_node)
