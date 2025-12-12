@@ -58,6 +58,8 @@ class AVLTree(object):
 	and e is the number of edges on the path between the starting node and ending node+1.
 	"""
 	def search(self, key):
+		# Purpose: search for a node with `key` starting from root.
+		# Complexity: O(h) where h is tree height (O(log n) on balanced AVL).
 		node=self.root
 		steps=0
 		while node is not None:
@@ -82,6 +84,8 @@ class AVLTree(object):
 	and e is the number of edges on the path between the starting node and ending node+1.
 	"""
 	def finger_search(self, key):
+		# Purpose: finger (max-based) search for `key`.
+		# Complexity: O(h) in worst case; O(log n) typically, plus traversal from max.
 		node=self.root
 		steps=0
 		while node.right is not None:
@@ -123,18 +127,26 @@ class AVLTree(object):
 	"""
 	#we add functions to support the prompting#
 	def height(self, node):
+		# Purpose: helper to get node height; virtual nodes have height -1.
+		# Complexity: O(1).
 		return node.height if node is not None else -1
 	
 	def update_height(self, node):
+		# Purpose: recompute and set `node.height` from its children.
+		# Complexity: O(1) since child heights are stored.
 
 		node.height=1+max(self.height(node.left),self.height(node.right))
 
 		node.height = 1+max(self.height(node.left),self.height(node.right))
 
 	def balance_factor(self, node):
+		# Purpose: compute balance factor = height(left) - height(right).
+		# Complexity: O(1).
 		return self.height(node.left)-self.height(node.right)
 	
 	def rotate_left(self,z):
+		# Purpose: left-rotate around node `z` to restore AVL balance.
+		# Complexity: O(1) (constant-time pointer changes and height updates).
 		y=z.right
 		T2=y.left
 		y.left=z
@@ -154,6 +166,8 @@ class AVLTree(object):
 		self.update_height(y)
 
 	def rotate_right(self,z):
+		# Purpose: right-rotate around node `z` to restore AVL balance.
+		# Complexity: O(1).
 		y=z.left
 		T3=y.right
 		y.right=z
@@ -174,6 +188,9 @@ class AVLTree(object):
 
 
 	def balance_tree(self, node, is_insert=False):
+		# Purpose: walk up from `node`, update heights and rebalance as needed.
+		# Returns: number of promote (height increases) operations during rebalancing.
+		# Complexity: O(h) where h is number of ancestors visited (O(log n) typically).
 		promotes=0
 		current=node
 		while current is not None:
@@ -203,6 +220,9 @@ class AVLTree(object):
 
 
 	def insert(self, key, val):
+		# Purpose: insert a new key/value into the AVL tree (starting at root).
+		# Returns: (new_node, edges_traversed_before_rebalance, promote_count).
+		# Complexity: O(h) for search + O(h) for rebalancing -> O(h) total (O(log n) typically).
 		self.treeSize+=1
 		new_node=AVLNode(key,val)
 		new_node.is_real_node = True
@@ -242,6 +262,9 @@ class AVLTree(object):
 	and h is the number of PROMOTE cases during the AVL rebalancing
 	"""
 	def finger_insert(self, key, val):
+		# Purpose: insert starting from maximum (finger insertion) to speed inserts near max.
+		# Returns: (new_node, edges_traversed_before_rebalance, promote_count).
+		# Complexity: O(h) worst-case; O(log n) typically, plus finger traversal.
 		self.treeSize+=1
 		steps = 0
 		node_max=self.root
@@ -289,6 +312,8 @@ class AVLTree(object):
 	@pre: node is a real pointer to a node in self
 	"""
 	def successor(self,node): 
+		# Purpose: find in-order successor of `node` in the BST.
+		# Complexity: O(h) worst-case (follow right then left spine), typically O(log n).
 		if node.right is not None:
 			current=node.right
 			while current.left is not None:
@@ -305,6 +330,9 @@ class AVLTree(object):
 			
 			
 	def delete(self, node):
+		# Purpose: delete given `node` from the AVL tree and rebalance.
+		# Returns: number of promote operations during rebalancing (if any).
+		# Complexity: O(h) for splice + O(h) for rebalancing -> O(h) total (O(log n) typically).
 		self.treeSize-=1
 		fix_from=node.parent
 		if node.left is None and node.right is None:#עלה -ניתוק ישיר
@@ -364,6 +392,9 @@ class AVLTree(object):
 	or the opposite way
 	"""
 	def join(self, tree2, key, val):
+		# Purpose: join two AVL trees with a middle node (key,val) so that
+		# all keys in one tree are < key and all keys in the other are > key.
+		# Complexity: O(|h1 - h2|) where h1,h2 are heights of the two trees.
 		if self.root == None:
 			tree2.insert(key, val)
 			self.root = tree2.root
