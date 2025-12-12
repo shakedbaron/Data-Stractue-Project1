@@ -590,6 +590,10 @@ class AVLTree(object):
     dictionary larger than node.key.
     """
     def split(self, node):
+        #Purpose: Split an AVL tree into 2 AVL trees according to a certain node,
+        #one with smaller keys then the node's key and one with bigger keys then the nodes key.
+        #Returns: The smaller tree and the bigger tree.
+        #Complexity: O(logn)
         small_tree = AVLTree()
         small_tree.root = node.left
         big_tree = AVLTree()
@@ -621,7 +625,7 @@ class AVLTree(object):
             #print(big_tree.root.key)
             #print("big")
             #print(t.avl_to_array(), t.root.parent.key)
-        return small_tree, big_tree #O(logn)
+        return small_tree, big_tree
 
 
     
@@ -631,6 +635,10 @@ class AVLTree(object):
     @returns: a sorted list according to key of touples (key, value) representing the data structure
     """
     def avl_to_array(self):
+        #Purpose: Return an in-order list of the (key, value) pairs in the tree,
+        #according to the keys' order.
+        #Returns: A list of (key, value) tuples
+        #Complexity: O(n)
         array = []
         def in_order(node):
             if node is None:
@@ -639,7 +647,7 @@ class AVLTree(object):
             array.append((node.key, node.value))
             in_order(node.right)
         in_order(self.root)
-        return array #O(n)
+        return array
 
 
     """returns the node with the maximal key in the dictionary
@@ -648,12 +656,15 @@ class AVLTree(object):
     @returns: the maximal node, None if the dictionary is empty
     """
     def max_node(self):
+        #Purpose: Find the node with the biggest key in the tree, by going all the way to the right.
+        #Returns: The node with the biggest key 
+        #Complexity: O(logn)
         tmp_node = self.root
         if tmp_node == None:
             return None
         while tmp_node.right != None:
             tmp_node = tmp_node.right
-        return tmp_node #O(logn)
+        return tmp_node
 
     """returns the number of items in dictionary 
 
@@ -661,7 +672,9 @@ class AVLTree(object):
     @returns: the number of items in dictionary 
     """
     def size(self):
-        return self.treeSize #O(1)
+        #Returns: The size of the tree.
+        #Complexity: O(1)
+        return self.treeSize
 
 
     """returns the root of the tree representing the dictionary
@@ -670,4 +683,6 @@ class AVLTree(object):
     @returns: the root, None if the dictionary is empty
     """
     def get_root(self):
+        #Returns: The root of the tree.
+        #Complexity: O(1)
         return self.root #O(1)
