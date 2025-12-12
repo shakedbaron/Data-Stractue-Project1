@@ -565,17 +565,11 @@ class AVLTree(object):
 		while tmp_node.key != self.root.key:
 			parent = tmp_node.parent
 			new_tree = AVLTree()
-			if parent.right.key == tmp_node.key:
-
-		while tmp_node.parent is not None:
-			new_tree = AVLTree()
-			parent = tmp_node.parent
 			if parent.right == tmp_node:
 				new_tree.root = parent.left
 				small_trees.append(new_tree)
 			else:
 				new_tree.root = parent.right
-
 				big_trees.append(new_tree)
 			tmp_node = parent
 		for t in small_trees:
