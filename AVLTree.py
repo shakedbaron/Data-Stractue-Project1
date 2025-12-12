@@ -470,7 +470,10 @@ class AVLTree(object):
         # Height-aware in-place join. Assumes all keys in self < key < all keys in tree2,
         # or the opposite. Runs in O(|h1-h2|) time.
 
-        if self.root.key > key > tree2.root.key:
+        if self.root is None and tree2.root is None:
+            self.insert(key, val)
+
+        if (self.root is None and key > tree2.root.key) or (tree2.root is None and self.root.key > key) or (self.root is not None and tree2.root is not None and self.root.key > key > tree2.root.key):
             self.root, tree2.root = tree2.root, self.root
             self.treeSize, tree2.treeSize = tree2.treeSize, self.treeSize
 
@@ -591,35 +594,33 @@ class AVLTree(object):
         small_tree.root = node.left
         big_tree = AVLTree()
         big_tree.root = node.right
-        small_trees = []
-        big_trees = []
+        small_trees = {}
+        big_trees = {}
         tmp_node = node
 
         while tmp_node.key != self.root.key:
             parent = tmp_node.parent
             new_tree = AVLTree()
-            if parent.right == tmp_node:
+            if parent.right is not None and parent.right.key == tmp_node.key:
                 new_tree.root = parent.left
-                small_trees.append(new_tree)
-            else:
+                small_trees[parent] = new_tree
+            if parent.left is not None and parent.left.key == tmp_node.key:
                 new_tree.root = parent.right
-                big_trees.append(new_tree)
+                big_trees[parent] = new_tree
             tmp_node = parent
-        for t in small_trees:
-            small_tree.join(t, t.root.parent.key, t.root.parent.value)
+        for parent in small_trees:
+            small_tree.join(small_trees[parent], parent.key, parent.value)
             #print("small")
-            print(t.avl_to_array(), t.root.parent.key)
-            1==1
-        for t in big_trees:
+            #print(t.avl_to_array(), t.root.parent.key)
+        for parent in big_trees:
             #print(big_tree.root.key)
             #print(t.avl_to_array())
             #print(t.root.key)
-            #big_tree.join(t, t.root.parent.key, t.root.parent.value)
+            big_tree.join(big_trees[parent], parent.key, parent.value)
             #print(big_tree.root.parent.key)
             #print(big_tree.root.key)
             #print("big")
-            print(t.avl_to_array(), t.root.parent.key)
-            1==1
+            #print(t.avl_to_array(), t.root.parent.key)
         return small_tree, big_tree #O(logn)
 
 
