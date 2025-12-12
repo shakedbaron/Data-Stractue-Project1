@@ -23,7 +23,7 @@ class AVLNode(object):
 		self.left = None
 		self.right = None
 		self.parent = None
-		self.height = -1
+		self.height = 0
 		
 
 	"""returns whether self is not a virtual node 
@@ -32,7 +32,7 @@ class AVLNode(object):
 	@returns: False if self is a virtual node, True otherwise.
 	"""
 	def is_real_node(self):
-		return False
+		return True
 
 
 """
@@ -126,7 +126,10 @@ class AVLTree(object):
 		return node.height if node is not None else -1
 	
 	def update_height(self, node):
+
 		node.height=1+max(self.height(node.left),self.height(node.right))
+
+		node.height = 1+max(self.height(node.left),self.height(node.right))
 
 	def balance_factor(self, node):
 		return self.height(node.left)-self.height(node.right)
@@ -436,6 +439,109 @@ class AVLTree(object):
 		self.treeSize+=tree2.treeSize + 1
 		return #O(abs(log(self.height) - tree2.height))
 
+		# Height-aware in-place join. Assumes all keys in self < key < all keys in tree2,
+		# or the opposite. Runs in O(|h1-h2|) time.
+		# Handle empty trees
+		if self.root is None:
+			new_root = AVLNode(key, val)
+			new_root.left = None
+			new_root.right = tree2.root
+			if tree2.root is not None:
+				tree2.root.parent = new_root
+			self.root = new_root
+			self.size = 1 + (tree2.size if hasattr(tree2, 'size') else 0)
+			self.update_height(new_root)
+			return
+		if tree2.root is None:
+			new_root = AVLNode(key, val)
+			new_root.right = None
+			new_root.left = self.root
+			if self.root is not None:
+				self.root.parent = new_root
+			self.root = new_root
+			self.size = 1 + (self.size if hasattr(self, 'size') else 0)
+			self.update_height(new_root)
+			return
+
+		h1 = self.height(self.root)
+		h2 = self.height(tree2.root)
+		middle = AVLNode(key, val)
+
+		# If heights equal or very close, make middle the root
+		if abs(h1 - h2) <= 1:
+			middle.left = self.root
+			middle.right = tree2.root
+			if self.root is not None:
+				self.root.parent = middle
+			if tree2.root is not None:
+				tree2.root.parent = middle
+			self.root = middle
+			self.size = (self.size if hasattr(self, 'size') else 0) + (tree2.size if hasattr(tree2, 'size') else 0) + 1
+			self.update_height(middle)
+			self.fix_after_insert(middle)
+			return
+
+		# If self is taller, splice into self's right spine
+		if h1 > h2:
+			node = self.root
+			parent = None
+			while node is not None and self.height(node.right) > h2:
+				parent = node
+				node = node.right
+			# attach middle so that middle.left = node.right (which has height <= h2)
+			middle.left = node.right if node is not None else None
+			if middle.left is not None:
+				middle.left.parent = middle
+			middle.right = tree2.root
+			if middle.right is not None:
+				middle.right.parent = middle
+			# place middle as the right child of parent if parent exists
+			if parent is None:
+				# attach at root
+				middle.left = self.root
+				if middle.left is not None:
+					middle.left.parent = middle
+				self.root = middle
+			else:
+				parent.right = middle
+				middle.parent = parent
+			# update sizes and heights and rebalance upwards
+			self.size = (self.size if hasattr(self, 'size') else 0) + (tree2.size if hasattr(tree2, 'size') else 0) + 1
+			self.update_height(middle)
+			self.fix_after_insert(middle)
+			return
+
+		# If tree2 is taller, symmetric splice into tree2 and set tree2.root as the resulting root
+		# We'll attach into tree2 then set self.root to tree2.root
+		node = tree2.root
+		parent = None
+		while node is not None and self.height(node.left) > h1:
+			parent = node
+			node = node.left
+		middle.right = node.left if node is not None else None
+		if middle.right is not None:
+			middle.right.parent = middle
+		middle.left = self.root
+		if middle.left is not None:
+			middle.left.parent = middle
+		if parent is None:
+			# attach at tree2 root
+			middle.right = tree2.root
+			if middle.right is not None:
+				middle.right.parent = middle
+			self.root = middle
+		else:
+			parent.left = middle
+			middle.parent = parent
+		# ensure resulting root is tree2.root if parent exists, else middle
+		if tree2.root is not None and parent is not None:
+			self.root = tree2.root
+		self.size = (self.size if hasattr(self, 'size') else 0) + (tree2.size if hasattr(tree2, 'size') else 0) + 1
+		self.update_height(middle)
+		self.fix_after_insert(middle)
+		return
+
+
 
 	"""splits the dictionary at a given node
 
@@ -455,14 +561,21 @@ class AVLTree(object):
 		small_trees = []
 		big_trees = []
 		tmp_node = node
+
 		while tmp_node.key != self.root.key:
 			parent = tmp_node.parent
 			new_tree = AVLTree()
 			if parent.right.key == tmp_node.key:
+
+		while tmp_node.parent is not None:
+			new_tree = AVLTree()
+			parent = tmp_node.parent
+			if parent.right == tmp_node:
 				new_tree.root = parent.left
 				small_trees.append(new_tree)
 			else:
 				new_tree.root = parent.right
+
 				big_trees.append(new_tree)
 			tmp_node = parent
 		for t in small_trees:
@@ -481,6 +594,7 @@ class AVLTree(object):
 			print(t.avl_to_array(), t.root.parent.key)
 			1==1
 		return small_tree, big_tree #O(logn)
+
 
 	
 	"""returns an array representing dictionary 
