@@ -273,8 +273,12 @@ class AVLTree(object):
         #while node_max.right is not None:
         #    node_max=node_max.right 
         #    steps+=1
+        if self.root is None:
+            self.root = new_node
+            self.maxNode = new_node
+            return new_node, 0, 0
         node_max = self.maxNode
-        if key>node_max.key:
+        if node_max and key>node_max.key:
             node_max.right=new_node
             new_node.parent=node_max
             steps+=1
