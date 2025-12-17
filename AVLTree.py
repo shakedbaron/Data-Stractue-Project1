@@ -389,90 +389,13 @@ class AVLTree(object):
     or the opposite way
     """
     def join(self, tree2, key, val):
-        # Purpose: join two AVL trees with a middle node (key,val) so that
-        # all keys in one tree are < key and all keys in the other are > key.
-        # Complexity: O(|h1 - h2|) where h1,h2 are heights of the two trees.
-        #if self.root == None:
-        #	tree2.insert(key, val)
-        #	self.root = tree2.root
-        #	return
-        #if tree2.root == None:
-        #	self.insert(key, val)
-        #	return
-        #middle_node = AVLNode(key, val)
-        #middle_node.is_real_node = True
-        #self_height = self.root.height
-        #tree2_height = tree2.root.height
-        #if tree2.root.key < middle_node.key < self.root.key:
-        #	if tree2_height <= self_height:
-        #		middle_node.left = tree2.root
-        #		tree2.root.parent = middle_node
-        #		connecting_node = self.root
-        #		while connecting_node.height > tree2_height:
-        #			connecting_node = connecting_node.left
-        #		middle_node.parent = connecting_node.parent
-        #		if connecting_node.parent:
-        #			connecting_node.parent.left = middle_node
-        #		if self_height == tree2_height:
-        #			self.root = middle_node
-        #		middle_node.right = connecting_node
-        #		connecting_node.parent = middle_node
-        #		p = self.balance_tree(middle_node)
-        #	if self_height < tree2_height:
-        #		middle_node.right = self.root
-        #		self.root.parent = middle_node
-        #		connecting_node = tree2.root
-        #		while connecting_node.height > self_height:
-        #			connecting_node = connecting_node.right
-        #		middle_node.parent = connecting_node.parent
-        #		if connecting_node.parent:
-        #			connecting_node.parent.right = middle_node
-        #			self.root = tree2.root
-        #		if self_height == tree2_height:
-        #			self.root = middle_node
-        #		middle_node.left = connecting_node
-        #		connecting_node.parent = middle_node
-        #		p = tree2.balance_tree(middle_node)
-        #if self.root.key < middle_node.key < tree2.root.key:
-        #	if self_height <= tree2_height:
-        #		middle_node.left = self.root
-        #		self.root.parent = middle_node
-        #		connecting_node = tree2.root
-        #		#print(connecting_node.height)
-        #		while connecting_node.height > self_height:
-        #			connecting_node = connecting_node.left
-        #		middle_node.parent = connecting_node.parent
-        #		if connecting_node.parent:
-        #			connecting_node.parent.left = middle_node
-        #			self.root = tree2.root
-        #		if self_height == tree2_height:
-        #			self.root = middle_node
-        #		middle_node.right = connecting_node
-        #		connecting_node.parent = middle_node
-        #		p = tree2.balance_tree(connecting_node)
-        #	if tree2_height < self_height:
-        #		middle_node.right = tree2.root
-        #		tree2.root.parent = middle_node
-        #		connecting_node = self.root
-        #		while connecting_node.height > tree2_height:
-        #			connecting_node = connecting_node.right
-        #		middle_node.parent = connecting_node.parent
-        #		if connecting_node.parent:
-        #			connecting_node.parent.right = middle_node
-        #		if self_height == tree2_height:
-        #			self.root = middle_node
-        #		middle_node.left = connecting_node
-        #		connecting_node.parent = middle_node
-        #		p = self.balance_tree(middle_node)
-        #self.treeSize+=tree2.treeSize + 1
-        #return #O(abs(log(self.height) - tree2.height))
-
         # Height-aware in-place join. Assumes all keys in self < key < all keys in tree2,
         # or the opposite. Runs in O(|h1-h2|) time.
 
         if self.root is None and tree2.root is None:
             self.insert(key, val)
 
+        # Handle self > key > tree2
         if (self.root is None and key > tree2.root.key) or (tree2.root is None and self.root.key > key) or (self.root is not None and tree2.root is not None and self.root.key > key > tree2.root.key):
             self.root, tree2.root = tree2.root, self.root
             self.treeSize, tree2.treeSize = tree2.treeSize, self.treeSize
@@ -520,25 +443,14 @@ class AVLTree(object):
         # If self is taller, splice into self's right spine
         if h1 > h2:
             node = self.root
-            #parent = None
             while node is not None and self.height(node.right) > h2:
-                #parent = node
                 node = node.right
-            # attach middle so that middle.left = node.right (which has height <= h2)
             middle.left = node.right if node is not None else None
             if middle.left is not None:
                 middle.left.parent = middle
             middle.right = tree2.root
             if middle.right is not None:
                 middle.right.parent = middle
-            # place middle as the right child of parent if parent exists
-            #if parent is None:
-                # attach at root
-            #	middle.left = self.root
-            #	if middle.left is not None:
-            #		middle.left.parent = middle
-            #	self.root = middle
-            #else:
             node.right = middle
             middle.parent = node
             # update sizes and heights and rebalance upwards
@@ -550,9 +462,7 @@ class AVLTree(object):
         # If tree2 is taller, symmetric splice into tree2 and set tree2.root as the resulting root
         # We'll attach into tree2 then set self.root to tree2.root
         node = tree2.root
-        #parent = None
         while node is not None and self.height(node.left) > h1:
-            #parent = node
             node = node.left
         middle.right = node.left if node is not None else None
         if middle.right is not None:
@@ -560,18 +470,12 @@ class AVLTree(object):
         middle.left = self.root
         if middle.left is not None:
             middle.left.parent = middle
-        #if parent is None:
-            # attach at tree2 root
-        #	middle.right = tree2.root
-        #	if middle.right is not None:
-        #		middle.right.parent = middle
-        #	self.root = middle
-        #else:
         node.left = middle
         middle.parent = node
         # ensure resulting root is tree2.root if parent exists, else middle
         if tree2.root is not None and node is not None:
             self.root = tree2.root
+        # update sizes and heights and rebalance upwards
         self.size = self.treeSize + tree2.treeSize + 1
         self.update_height(middle)
         self.balance_tree(middle)
@@ -614,17 +518,8 @@ class AVLTree(object):
             tmp_node = parent
         for parent in small_trees:
             small_tree.join(small_trees[parent], parent.key, parent.value)
-            #print("small")
-            #print(t.avl_to_array(), t.root.parent.key)
         for parent in big_trees:
-            #print(big_tree.root.key)
-            #print(t.avl_to_array())
-            #print(t.root.key)
             big_tree.join(big_trees[parent], parent.key, parent.value)
-            #print(big_tree.root.parent.key)
-            #print(big_tree.root.key)
-            #print("big")
-            #print(t.avl_to_array(), t.root.parent.key)
         return small_tree, big_tree
 
 
