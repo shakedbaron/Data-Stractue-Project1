@@ -47,6 +47,7 @@ class AVLTree(object):
     def __init__(self):
         self.root = None
         self.treeSize = 0 #every insert and finger insert, increase size by 1, and every delete decrease by 1
+        self.maxNode = None #updates every insert / delete
 
 
     """searches for a node in the dictionary corresponding to the key (starting at the root)
@@ -86,12 +87,12 @@ class AVLTree(object):
     def finger_search(self, key):
         # Purpose: finger (max-based) search for `key`.
         # Complexity: O(h) in worst case; O(log n) typically, plus traversal from max.
-        node=self.root
+        #node=self.root
+        #while node.right is not None:
+        #    node=node.right
+        #    steps+=1
         steps=0
-        while node.right is not None:
-            node=node.right
-            steps+=1
-        max_node=node
+        max_node=self.maxNode
         if key>max_node.key:
             return None , -1
         if key==max_node.key:
@@ -225,7 +226,10 @@ class AVLTree(object):
         new_node.is_real_node = True
         if self.root is None:
             self.root = new_node
+            self.maxNode = new_node
             return new_node, 0, 0
+        if self.maxNode and key > self.maxNode.key:
+            self.maxNode = new_node
         node=self.root 
         steps=0
         parent=None
@@ -262,18 +266,20 @@ class AVLTree(object):
         # Purpose: insert starting from maximum (finger insertion) to speed inserts near max.
         # Returns: (new_node, edges_traversed_before_rebalance, promote_count).
         # Complexity: O(h) worst-case; O(log n) typically, plus finger traversal.
+        new_node=AVLNode(key,val)
         self.treeSize+=1
         steps = 0
-        node_max=self.root
-        while node_max.right is not None:
-            node_max=node_max.right 
-            steps+=1
-        new_node=AVLNode(key,val)
+        #node_max=self.root
+        #while node_max.right is not None:
+        #    node_max=node_max.right 
+        #    steps+=1
+        node_max = self.maxNode
         if key>node_max.key:
             node_max.right=new_node
             new_node.parent=node_max
             steps+=1
             promotes=self.balance_tree(node_max, is_insert=True)
+            self.maxNode = new_node
             return new_node, steps,promotes
         current=node_max
         while current.parent is not None and current.parent.key>key:
@@ -349,6 +355,9 @@ class AVLTree(object):
                 else:
                     p.right=child
             child.parent=p
+            #update max node
+            if node.key == self.maxNode.key:
+                self.maxNode = p
             return
         succ=self.successor(node) # 2 ילדים -מוצאים יורש ומחליפים 
         node.key , succ.key= succ.key, node.key
@@ -402,30 +411,33 @@ class AVLTree(object):
 
         # Handle empty trees
         if self.root is None:
-            new_root = AVLNode(key, val)
-            new_root.left = None
-            new_root.right = tree2.root
-            if tree2.root is not None:
-                tree2.root.parent = new_root
-            self.root = new_root
-            self.treeSize = 1 + tree2.treeSize
-            self.update_height(new_root)
+            self.root = tree2.root
+            self.insert(key, val)
+            #new_root = AVLNode(key, val)
+            #new_root.left = None
+            #new_root.right = tree2.root
+            #if tree2.root is not None:
+            #    tree2.root.parent = new_root
+            #self.root = new_root
+            #self.treeSize = 1 + tree2.treeSize
+            #self.update_height(new_root)
             return
         if tree2.root is None:
-            new_root = AVLNode(key, val)
-            new_root.right = None
-            new_root.left = self.root
-            if self.root is not None:
-                self.root.parent = new_root
-            self.root = new_root
-            self.treeSize = 1 + self.treeSize
-            self.update_height(new_root)
+            self.insert(key, val)
+            #new_root = AVLNode(key, val)
+            #new_root.right = None
+            #new_root.left = self.root
+            #if self.root is not None:
+            #    self.root.parent = new_root
+            #self.root = new_root
+            #self.treeSize = 1 + self.treeSize
+            #self.update_height(new_root)
             return
 
         h1 = self.height(self.root)
         h2 = self.height(tree2.root)
         middle = AVLNode(key, val)
-
+        self.maxNode = tree2.maxNode
         # If heights equal or very close, make middle the root
         if abs(h1 - h2) <= 1:
             middle.left = self.root
