@@ -118,4 +118,4 @@ n = [300.0*(2**i) for i in [1, 2, 3, 4, 5]]
 for i in [1, 2, 3, 4, 5]:
     b = n[i-1]*math.log((I[i-1]/n[i-1]) + 2)
     print(str(i)+": "+ str(b))
-    print(str(i) + ": "+str(n[i-1]*math.log(n[i-1], 2)))
+    #print(str(i) + ": "+str(n[i-1]*math.log(n[i-1], 2)))
