@@ -269,10 +269,6 @@ class AVLTree(object):
         new_node=AVLNode(key,val)
         self.treeSize+=1
         steps = 0
-        #node_max=self.root
-        #while node_max.right is not None:
-        #    node_max=node_max.right 
-        #    steps+=1
         if self.root is None:
             self.root = new_node
             self.maxNode = new_node
@@ -387,7 +383,6 @@ class AVLTree(object):
             else:
                 promotes=0
             return promotes
-        #O(logn)
 
 
     """joins self with item and another AVLTree
@@ -417,25 +412,9 @@ class AVLTree(object):
         if self.root is None:
             self.root = tree2.root
             self.insert(key, val)
-            #new_root = AVLNode(key, val)
-            #new_root.left = None
-            #new_root.right = tree2.root
-            #if tree2.root is not None:
-            #    tree2.root.parent = new_root
-            #self.root = new_root
-            #self.treeSize = 1 + tree2.treeSize
-            #self.update_height(new_root)
             return
         if tree2.root is None:
             self.insert(key, val)
-            #new_root = AVLNode(key, val)
-            #new_root.right = None
-            #new_root.left = self.root
-            #if self.root is not None:
-            #    self.root.parent = new_root
-            #self.root = new_root
-            #self.treeSize = 1 + self.treeSize
-            #self.update_height(new_root)
             return
 
         h1 = self.height(self.root)
